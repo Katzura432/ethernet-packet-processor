@@ -1,0 +1,39 @@
+# Verification Results
+
+## Simulation status
+
+**PASS** — Vivado XSim 2026.1 completed the directed RTL simulation successfully on October 8, 2026.
+
+## Test coverage
+
+| Ethernet frame | Expected behavior | Observed behavior |
+| --- | --- | --- |
+| Local-unicast IPv4 | Forward | Forwarded |
+| Broadcast ARP | Forward | Forwarded |
+| Other-destination IPv4 | Drop | Dropped |
+| Local-unicast IPv6 | Drop | Dropped |
+
+## Checked results
+
+| Measurement | Expected | Observed |
+| --- | ---: | ---: |
+| Accepted frames | 2 | 2 |
+| Dropped frames | 2 | 2 |
+| Forwarded frames | 2 | 2 |
+| Forwarded bytes | 36 | 36 |
+
+## XSim output
+
+```text
+Forwarded frame with 18 bytes
+Forwarded frame with 36 bytes
+PASS: all filtering checks completed
+```
+
+## Reproduce
+
+From the repository root, run:
+
+```powershell
+& 'E:\Vivado\2026.1\Vivado\bin\vivado.bat' -mode batch -source scripts\run_sim.tcl
+```

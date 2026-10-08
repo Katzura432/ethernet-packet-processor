@@ -25,7 +25,7 @@ The module applies backpressure correctly on output payload data. Header bufferi
 
 ## Simulation
 
-The testbench sends four frames: accepted IPv4 unicast, accepted broadcast ARP, wrong-destination IPv4, and unsupported IPv6. It verifies two accepted frames, two dropped frames, and 36 forwarded bytes.
+The testbench sends four frames: accepted IPv4 unicast, accepted broadcast ARP, wrong-destination IPv4, and unsupported IPv6. It verifies two accepted frames, two dropped frames, and 36 forwarded bytes. The latest passing result is recorded in [RESULTS.md](RESULTS.md).
 
 From the Vivado Tcl console (or Windows command prompt):
 

@@ -4,6 +4,10 @@
 
 **PASS** — Vivado XSim 2026.1 completed the directed RTL simulation successfully on October 8, 2026.
 
+![XSim GUI showing the completed passing simulation](assets/xsim-pass.png)
+
+The captured simulator window shows the completed run at 1255 ns, the two forwarded frames, and `PASS: all filtering checks completed`.
+
 ## Test coverage
 
 | Ethernet frame | Expected behavior | Observed behavior |

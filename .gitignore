@@ -2,6 +2,7 @@
 *.jou
 *.log
 *.pb
+xsim_gui_*.png
 *.str
 *.wdb
 *.zip

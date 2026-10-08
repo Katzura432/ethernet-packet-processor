@@ -49,16 +49,48 @@ module tb_eth_packet_filter;
         end
     endtask
 
+    task automatic send_vlan_frame(input logic [47:0] da, input logic [15:0] tpid, input logic [15:0] etype);
+        logic [7:0] bytes [0:21];
+        int i;
+        begin
+            {bytes[0],bytes[1],bytes[2],bytes[3],bytes[4],bytes[5]} = da;
+            {bytes[6],bytes[7],bytes[8],bytes[9],bytes[10],bytes[11]} = 48'h10_20_30_40_50_60;
+            {bytes[12],bytes[13]} = tpid; bytes[14]=8'h00; bytes[15]=8'h64;
+            {bytes[16],bytes[17]} = etype; bytes[18]=8'hDE; bytes[19]=8'hAD; bytes[20]=8'hBE; bytes[21]=8'hEF;
+            for (i=0; i<22; i++) begin
+                @(negedge clk); s_valid = 1; s_data = bytes[i]; s_last = (i == 21);
+                do @(posedge clk); while (!s_ready);
+            end
+            @(negedge clk); s_valid = 0; s_last = 0;
+        end
+    endtask
+
+    task automatic send_runt_frame;
+        int i;
+        begin
+            for (i=0; i<10; i++) begin
+                @(negedge clk); s_valid = 1; s_data = i; s_last = (i == 9);
+                do @(posedge clk); while (!s_ready);
+            end
+            @(negedge clk); s_valid = 0; s_last = 0;
+        end
+    endtask
+
     initial begin
         s_valid=0; s_data=0; s_last=0;
         repeat (3) @(posedge clk); rst <= 0;
         send_frame(48'h02_00_00_00_00_01, 16'h0800); // accepted IPv4 unicast
         send_frame(48'hFF_FF_FF_FF_FF_FF, 16'h0806); // accepted broadcast ARP
         send_vlan_arp(48'h02_00_00_00_00_01, 12'd100); // accepted VLAN-tagged ARP
+        send_frame(48'hFF_FF_FF_FF_FF_FF, 16'h0800); // accepted broadcast IPv4
+        send_vlan_frame(48'h02_00_00_00_00_01, 16'h88A8, 16'h0800); // accepted service-VLAN IPv4
         send_frame(48'h02_00_00_00_00_02, 16'h0800); // reject: other MAC
         send_frame(48'h02_00_00_00_00_01, 16'h86DD); // reject: IPv6 disabled
+        send_vlan_frame(48'h02_00_00_00_00_02, 16'h8100, 16'h0806); // reject: other MAC behind VLAN
+        send_vlan_frame(48'h02_00_00_00_00_01, 16'h8100, 16'h86DD); // reject: inner IPv6
+        send_runt_frame(); // reject: less than a complete Ethernet header
         repeat (20) @(posedge clk);
-        if (accepted_frames != 3 || dropped_frames != 2 || received_bytes != 58 || received_frames != 3) $fatal(1, "Test failed: accepted=%0d dropped=%0d bytes=%0d frames=%0d", accepted_frames, dropped_frames, received_bytes, received_frames);
+        if (accepted_frames != 5 || dropped_frames != 5 || received_bytes != 98 || received_frames != 5) $fatal(1, "Test failed: accepted=%0d dropped=%0d bytes=%0d frames=%0d", accepted_frames, dropped_frames, received_bytes, received_frames);
         $display("PASS: all filtering checks completed");
         $finish;
     end

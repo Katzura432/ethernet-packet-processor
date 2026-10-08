@@ -33,9 +33,13 @@ The modules apply backpressure correctly on payload data. L2 header buffering me
 
 ## Simulation
 
-The L2 regression sends five frames: accepted IPv4 unicast, accepted broadcast ARP, accepted VLAN-tagged ARP, wrong-destination IPv4, and unsupported IPv6. It verifies three accepted frames, two dropped frames, and 58 forwarded bytes. The latest passing result is recorded in [RESULTS.md](RESULTS.md).
+The L2 regression sends ten frames: five accepted frames covering untagged, customer-VLAN, and service-VLAN traffic; plus five rejection cases. It verifies five accepted frames, five dropped frames, and 98 forwarded bytes. The latest passing result is recorded in [RESULTS.md](RESULTS.md).
 
 ![Passing XSim simulation](assets/xsim-pass.png)
+
+![Expanded XSim regression with test cases and final counters](assets/xsim-expanded-regression.png)
+
+![Expanded XSim regression console](assets/xsim-expanded-console.png)
 
 From the Vivado Tcl console (or Windows command prompt):
 

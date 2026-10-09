@@ -14,3 +14,4 @@ xsim.dir/
 *.sim/
 *.srcs/
 *.xpr
+docs/diagrams/__pycache__/

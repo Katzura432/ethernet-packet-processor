@@ -64,3 +64,11 @@ Designed and verified a synthesizable SystemVerilog Ethernet ingress packet proc
 ## License
 
 MIT.
+
+## Architecture diagrams
+
+![Project architecture](docs/diagrams/figures/architecture_overview.png)
+
+See the [architecture and implementation gallery](docs/ARCHITECTURE.md) for
+the detailed RTL structure and overall hardware integration
+diagrams, source mappings, scope boundaries, editable definitions, and PNG/SVG figures.

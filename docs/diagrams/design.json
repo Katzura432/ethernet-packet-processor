@@ -1,0 +1,361 @@
+{
+  "project": "ethernet-packet-processor",
+  "scope": "Implemented RTL core only; PHY, MAC, DMA and host integration are external. No new synthesis schematic is claimed.",
+  "sources": [
+    {
+      "path": "rtl/eth_ingress_processor.sv",
+      "contains": [
+        "eth_packet_filter",
+        "ipv4_metadata_parser"
+      ]
+    },
+    {
+      "path": "rtl/eth_packet_filter.sv",
+      "contains": [
+        "RX_L2, EMIT_L2, FORWARD, DISCARD",
+        "header [0:17]"
+      ]
+    },
+    {
+      "path": "rtl/ipv4_metadata_parser.sv",
+      "contains": [
+        "l4_start",
+        "meta_valid"
+      ]
+    }
+  ],
+  "diagrams": [
+    {
+      "id": "architecture_overview",
+      "title": "Ethernet packet processor — system architecture",
+      "subtitle": "Byte-wide ready/valid ingress; one optional VLAN tag; accepted frame bytes preserved",
+      "scope": "Source-derived implemented behavior, not a MAC/PHY or network-stack implementation.",
+      "nodes": [
+        {
+          "id": "rx",
+          "x": 3,
+          "y": 51,
+          "label": "RX byte stream\ns_data[7:0], s_valid\ns_ready, s_last",
+          "kind": "external"
+        },
+        {
+          "id": "l2",
+          "x": 36,
+          "y": 51,
+          "label": "L2 admission filter\nLocal / broadcast MAC\nIPv4 / ARP, optional VLAN",
+          "kind": "implemented"
+        },
+        {
+          "id": "ip",
+          "x": 69,
+          "y": 51,
+          "label": "IPv4 metadata parser\nVLAN offset + IP IHL\nSource / destination fields",
+          "kind": "implemented"
+        },
+        {
+          "id": "out",
+          "x": 69,
+          "y": 30,
+          "label": "Accepted byte stream\nm_data[7:0], m_valid\nm_ready, m_last",
+          "kind": "external"
+        },
+        {
+          "id": "policy",
+          "x": 3,
+          "y": 30,
+          "label": "Compile-time policy\nLOCAL_MAC\nAllowed EtherTypes",
+          "kind": "control"
+        },
+        {
+          "id": "counts",
+          "x": 36,
+          "y": 9,
+          "label": "Frame counters\nAccepted / dropped\nIPv4 / TCP / UDP",
+          "kind": "control"
+        },
+        {
+          "id": "meta",
+          "x": 69,
+          "y": 9,
+          "label": "Metadata pulse + fields\nIP addresses, protocol\nPorts and VLAN ID",
+          "kind": "control"
+        }
+      ],
+      "edges": [
+        {
+          "from": "rx",
+          "to": "l2",
+          "label": "",
+          "kind": "data"
+        },
+        {
+          "from": "l2",
+          "to": "ip",
+          "label": "",
+          "kind": "data"
+        },
+        {
+          "from": "ip",
+          "to": "out",
+          "label": "",
+          "kind": "data"
+        },
+        {
+          "from": "policy",
+          "to": "l2",
+          "label": "",
+          "kind": "control"
+        },
+        {
+          "from": "l2",
+          "to": "counts",
+          "label": "",
+          "kind": "control"
+        },
+        {
+          "from": "ip",
+          "to": "counts",
+          "label": "",
+          "kind": "control",
+          "points": [
+            [
+              75,
+              50.5
+            ],
+            [
+              66.5,
+              46
+            ],
+            [
+              50,
+              46
+            ],
+            [
+              50,
+              22.5
+            ]
+          ]
+        },
+        {
+          "from": "ip",
+          "to": "meta",
+          "label": "",
+          "kind": "data",
+          "points": [
+            [
+              98,
+              57.5
+            ],
+            [
+              99,
+              57.5
+            ],
+            [
+              99,
+              15.5
+            ],
+            [
+              98,
+              15.5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rtl_structure",
+      "title": "Ethernet packet processor — RTL structure",
+      "subtitle": "Exact module instances and internal register/FSM responsibilities",
+      "scope": "Hierarchy arrows identify contained logic; the accepted stream connects the two actual RTL modules.",
+      "nodes": [
+        {
+          "id": "top",
+          "x": 36,
+          "y": 51,
+          "label": "eth_ingress_processor\nTop-level RTL wrapper",
+          "kind": "implemented"
+        },
+        {
+          "id": "filter",
+          "x": 3,
+          "y": 30,
+          "label": "l2_filter\neth_packet_filter",
+          "kind": "implemented"
+        },
+        {
+          "id": "parser",
+          "x": 69,
+          "y": 30,
+          "label": "parser\nipv4_metadata_parser",
+          "kind": "implemented"
+        },
+        {
+          "id": "fsm",
+          "x": 3,
+          "y": 9,
+          "label": "L2 internal logic\n18-byte header array\nRX / EMIT / FORWARD / DISCARD",
+          "kind": "implemented"
+        },
+        {
+          "id": "preg",
+          "x": 69,
+          "y": 9,
+          "label": "Parser internal logic\nByte index, L3/L4 offsets\nMetadata and counters",
+          "kind": "implemented"
+        }
+      ],
+      "edges": [
+        {
+          "from": "top",
+          "to": "filter",
+          "label": "instance",
+          "kind": "hierarchy"
+        },
+        {
+          "from": "top",
+          "to": "parser",
+          "label": "instance",
+          "kind": "hierarchy"
+        },
+        {
+          "from": "filter",
+          "to": "parser",
+          "label": "Accepted byte stream",
+          "kind": "data"
+        },
+        {
+          "from": "filter",
+          "to": "fsm",
+          "label": "",
+          "kind": "hierarchy"
+        },
+        {
+          "from": "parser",
+          "to": "preg",
+          "label": "",
+          "kind": "hierarchy"
+        }
+      ]
+    },
+    {
+      "id": "hardware_context",
+      "title": "Ethernet packet processor — hardware integration context",
+      "subtitle": "Conceptual attachment points; dashed boxes are not provided in this repository",
+      "scope": "No PHY, MAC, DMA, AXI control plane, asynchronous clock bridge or board implementation is included.",
+      "nodes": [
+        {
+          "id": "phy",
+          "x": 3,
+          "y": 51,
+          "label": "Ethernet cable + PHY\nBoard-specific interface",
+          "kind": "external"
+        },
+        {
+          "id": "mac",
+          "x": 36,
+          "y": 51,
+          "label": "RX Ethernet MAC\nProduces framed byte stream",
+          "kind": "external"
+        },
+        {
+          "id": "core",
+          "x": 69,
+          "y": 51,
+          "label": "Implemented ingress core\nL2 filter + IPv4 parser",
+          "kind": "implemented"
+        },
+        {
+          "id": "sink",
+          "x": 69,
+          "y": 30,
+          "label": "Packet buffer / consumer\nOptional downstream DMA",
+          "kind": "external"
+        },
+        {
+          "id": "host",
+          "x": 36,
+          "y": 9,
+          "label": "Application / host software\nConsumes packet / metadata",
+          "kind": "external"
+        },
+        {
+          "id": "telemetry",
+          "x": 69,
+          "y": 9,
+          "label": "Core sideband outputs\nMetadata + frame counters",
+          "kind": "control"
+        },
+        {
+          "id": "clock",
+          "x": 36,
+          "y": 30,
+          "label": "Core clk + synchronous rst\nSingle RTL clock domain",
+          "kind": "control"
+        }
+      ],
+      "edges": [
+        {
+          "from": "phy",
+          "to": "mac",
+          "label": "",
+          "kind": "external"
+        },
+        {
+          "from": "mac",
+          "to": "core",
+          "label": "",
+          "kind": "external"
+        },
+        {
+          "from": "core",
+          "to": "sink",
+          "label": "",
+          "kind": "data"
+        },
+        {
+          "from": "sink",
+          "to": "host",
+          "label": "",
+          "kind": "external"
+        },
+        {
+          "from": "clock",
+          "to": "core",
+          "label": "",
+          "kind": "control"
+        },
+        {
+          "from": "core",
+          "to": "telemetry",
+          "label": "",
+          "kind": "data",
+          "points": [
+            [
+              98,
+              57.5
+            ],
+            [
+              99,
+              57.5
+            ],
+            [
+              99,
+              15.5
+            ],
+            [
+              98,
+              15.5
+            ]
+          ]
+        },
+        {
+          "from": "telemetry",
+          "to": "host",
+          "label": "",
+          "kind": "external"
+        }
+      ]
+    }
+  ],
+  "source_commit": "09ffd9d2ea0006ee4aea53c8e05910f857768d93"
+}

@@ -1,0 +1,9 @@
+{
+  "source_commit": "09ffd9d2ea0006ee4aea53c8e05910f857768d93",
+  "method": "Annotated source-derived block diagrams; not synthesized netlist or GUI screenshots",
+  "source_sha256": {
+    "rtl/eth_ingress_processor.sv": "3251299b38ec9ca6316cf9521f83641606534d09180417a5a1d006c764d85f9f",
+    "rtl/eth_packet_filter.sv": "c9999fd380da6a0173764f81947b43470c6252eac4c1c9f15c0f3c6198adef36",
+    "rtl/ipv4_metadata_parser.sv": "0f98b04c4cd72001806a0bca984e374d1fc2ac54d5bc3cfa0d4eb3a6f73dfd89"
+  }
+}
